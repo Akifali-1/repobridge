@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { LIMITS, loadRepoConfig, REPO_CONFIG_FILENAME } from "./config.js";
 import { GitShadowEngine } from "./gitShadow.js";
 import { startBridgeServer } from "./server.js";
@@ -66,18 +67,30 @@ export function loadOrCreatePersistentToken(
   try {
     fs.mkdirSync(configDir, { recursive: true, mode: 0o700 });
     fs.writeFileSync(tokenFile, fresh + "\n", { encoding: "utf8", mode: 0o600 });
+    if (process.platform !== "win32") {
+      fs.chmodSync(tokenFile, 0o600);
+    }
     return { token: fresh, source: tokenFile };
   } catch {
     return { token: fresh, source: "ephemeral" };
   }
 }
 
-const isDirectRun =
-  process.argv[1] &&
-  path.resolve(process.argv[1]) ===
-    path.resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1"));
+function isMainEntry(): boolean {
+  if (!process.argv[1]) return false;
+  try {
+    const argvReal = fs.realpathSync(path.resolve(process.argv[1]));
+    const selfReal = fs.realpathSync(fileURLToPath(import.meta.url));
+    if (process.platform === "win32") {
+      return argvReal.toLowerCase() === selfReal.toLowerCase();
+    }
+    return argvReal === selfReal;
+  } catch {
+    return false;
+  }
+}
 
-if (isDirectRun) {
+if (isMainEntry()) {
   const version = getDaemonVersion();
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {

@@ -428,16 +428,7 @@ async function runRipgrep(
   }
   if (opts.glob) args.push("--glob", opts.glob);
   if (!opts.allowEnvRead) {
-    args.push(
-      "--glob",
-      "!.env",
-      "--glob",
-      "!.env.*",
-      "--glob",
-      ".env.example",
-      "--glob",
-      ".env.sample"
-    );
+    args.push("--glob", "!.env", "--glob", "!.env.*");
   }
   for (const lock of GREP_IGNORED_FILES) {
     args.push("--glob", `!${lock}`);

@@ -47,7 +47,9 @@ export function resolveSafePath(repoRoot: string, rawPath: string, isWrite = fal
 
   const normalizedRoot = path.resolve(repoRoot);
   const realRoot = fs.existsSync(normalizedRoot) ? fs.realpathSync(normalizedRoot) : normalizedRoot;
+  const slashNormalizedRaw = rawPath.replace(/\\/g, "/");
   const resolved = path.resolve(normalizedRoot, rawPath);
+  const resolvedFromSlashes = path.resolve(normalizedRoot, slashNormalizedRaw);
 
   const isInside = (root: string, target: string): boolean => {
     const a = process.platform === "win32" ? root.toLowerCase() : root;
@@ -55,7 +57,7 @@ export function resolveSafePath(repoRoot: string, rawPath: string, isWrite = fal
     return b === a || b.startsWith(a + path.sep);
   };
 
-  if (!isInside(normalizedRoot, resolved)) {
+  if (!isInside(normalizedRoot, resolved) || !isInside(normalizedRoot, resolvedFromSlashes)) {
     throw new Error(`Path escapes repository root: ${rawPath}`);
   }
 

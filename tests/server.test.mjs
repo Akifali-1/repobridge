@@ -1,6 +1,7 @@
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { startBridgeServer } from "../daemon/dist/server.js";
@@ -69,15 +70,33 @@ describe("HTTP Server: auth, CORS, limits, invalid JSON, concurrency 409", () =>
     assert.equal(rBad.status, 400);
 
     const bigPayload = JSON.stringify({ tools: [], pad: "x".repeat(10 * 1024 * 1024 + 1024) });
-    const rBig = await fetch(`${baseUrl}/execute`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: bigPayload
+    const bigStatus = await new Promise((resolve, reject) => {
+      const target = new URL(`${baseUrl}/execute`);
+      const req = http.request(
+        {
+          hostname: target.hostname,
+          port: target.port,
+          path: target.pathname,
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${TOKEN}`,
+            "Content-Type": "application/json",
+            "Content-Length": Buffer.byteLength(bigPayload)
+          }
+        },
+        (res) => {
+          res.resume();
+          resolve(res.statusCode);
+        }
+      );
+      req.on("error", (err) => {
+        // Server closes connection immediately upon rejecting >10MB payload with 413
+        if (err && (err.code === "ECONNRESET" || err.code === "EPIPE")) return;
+        reject(err);
+      });
+      req.end(bigPayload);
     });
-    assert.equal(rBig.status, 413);
+    assert.equal(bigStatus, 413);
   });
 
   it("returns 409 on concurrent /execute and on /revert during /execute", async () => {

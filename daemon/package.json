@@ -39,7 +39,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "npm --prefix .. run lint",
     "format": "npm --prefix .. run format",
-    "test": "node --test ../tests/*.test.mjs"
+    "test": "node ../scripts/run-tests.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
