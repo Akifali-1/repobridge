@@ -1,0 +1,48 @@
+{
+  "name": "repobridge",
+  "version": "1.2.0",
+  "description": "Local Git-safe filesystem and command daemon for RepoBridge",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Akifali-1/repobridge.git",
+    "directory": "daemon"
+  },
+  "bugs": {
+    "url": "https://github.com/Akifali-1/repobridge/issues"
+  },
+  "homepage": "https://github.com/Akifali-1/repobridge#readme",
+  "keywords": [
+    "repobridge",
+    "llm",
+    "coding-agent",
+    "chrome-extension",
+    "git",
+    "developer-tools"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "repobridge": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "npm --prefix .. run lint",
+    "format": "npm --prefix .. run format",
+    "test": "node --test ../tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}

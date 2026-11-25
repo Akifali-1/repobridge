@@ -1,0 +1,18 @@
+{
+  "verifyCmd": "npm run typecheck",
+  "allowedCommands": [
+    "npm run typecheck",
+    "npm run build",
+    "npm test",
+    "npm run lint",
+    "node --test"
+  ],
+  "ignoreGlobs": [
+    "*.lock",
+    "bundle.txt"
+  ],
+  "maxReadLines": 800,
+  "maxFileChars": 40000,
+  "maxBatchChars": 64000,
+  "allowEnvRead": false
+}

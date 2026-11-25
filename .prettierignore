@@ -1,0 +1,5 @@
+node_modules
+dist
+bundle.txt
+package-lock.json
+daemon/package-lock.json
